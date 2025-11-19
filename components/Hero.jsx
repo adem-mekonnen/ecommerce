@@ -1,5 +1,5 @@
 'use client'
-import { assets } from '@/assets/assets'
+import { assets } from '../assets/assets'
 import { ArrowRightIcon, ChevronRightIcon } from 'lucide-react'
 import Image from 'next/image'
 import React from 'react'

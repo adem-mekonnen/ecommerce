@@ -1,4 +1,4 @@
-import { categories } from "@/assets/assets";
+import { categories } from "../assets/assets";
 
 const CategoriesMarquee = () => {
 
