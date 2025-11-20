@@ -126,6 +126,13 @@
     protobufjs "^7.5.3"
     yargs "^17.7.2"
 
+"@imagekit/nodejs@^7.1.1":
+  version "7.1.1"
+  resolved "https://registry.npmjs.org/@imagekit/nodejs/-/nodejs-7.1.1.tgz"
+  integrity sha512-9ll3r04d4lkpVpO9yzU40kmT6UH0+d8UcYYYesnBML8lTI0ghTnNfwxIPuC8l2vDwVxIPZ8eQr2JlPSQHvRQbw==
+  dependencies:
+    standardwebhooks "^1.0.0"
+
 "@img/sharp-win32-x64@0.34.3":
   version "0.34.3"
   resolved "https://registry.npmjs.org/@img/sharp-win32-x64/-/sharp-win32-x64-0.34.3.tgz"
