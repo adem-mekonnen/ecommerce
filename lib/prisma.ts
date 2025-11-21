@@ -8,6 +8,7 @@ if (process.env.NODE_ENV === "production") {
     datasources: {
       db: {
         url: process.env.DATABASE_URL,
+        directUrl: process.env.DIRECT_URL,
       },
     },
   });
@@ -17,6 +18,7 @@ if (process.env.NODE_ENV === "production") {
       datasources: {
         db: {
           url: process.env.DATABASE_URL,
+          directUrl: process.env.DIRECT_URL,
         },
       },
     });

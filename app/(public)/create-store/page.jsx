@@ -4,9 +4,16 @@ import { useEffect, useState } from "react"
 import Image from "next/image"
 import toast from "react-hot-toast"
 import Loading from "@/components/Loading"
+import { useUser } from "@clerk/nextjs"
+import {useRouter} from "next/navigation"
+import { useAuth } from "@clerk/nextjs"
+import axios from "axios"
 
 export default function CreateStore() {
 
+    const {user} = useUser()
+    const router = useRouter()
+    const {getToken} = useAuth()
     const [alreadySubmitted, setAlreadySubmitted] = useState(false)
     const [status, setStatus] = useState("")
     const [loading, setLoading] = useState(true)
@@ -28,7 +35,8 @@ export default function CreateStore() {
 
     const fetchSellerStatus = async () => {
         // Logic to check if the store is already submitted
-
+        
+         
 
         setLoading(false)
     }
@@ -36,6 +44,34 @@ export default function CreateStore() {
     const onSubmitHandler = async (e) => {
         e.preventDefault()
         // Logic to submit the store details
+        if (!user) {
+            toast("You must be logged in to create a store.")
+            router.push("/login")
+            return  
+        }
+        try {
+            const token = await getToken({ template: "default" })
+            const formData = new FormData()
+            formData.append("name", storeInfo.name)
+            formData.append("username", storeInfo.username)
+            formData.append("description", storeInfo.description)
+            formData.append("email", storeInfo.email)
+            formData.append("contact", storeInfo.contact)
+            formData.append("address", storeInfo.address)
+            formData.append("image", storeInfo.image)
+
+        const {data} = await axios.post("/api/store/create", formData, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                           }
+
+            
+        })
+        toast.success(data.message || "Store created successfully!")
+        } catch (error) {
+            toast.error(error.response?.data?.error || "Something went wrong. Please try again.")
+            
+        }
 
 
     }
@@ -43,7 +79,16 @@ export default function CreateStore() {
     useEffect(() => {
         fetchSellerStatus()
     }, [])
-
+   
+    if(!user){
+       return (
+        <div className="min-h-[80vh] mx-6 flex items-center justify-center text-slate-400">
+          <h1 className="text-2xl sm:text-4xl font-semibold">
+            Please <span className="text-slate-500">login</span> to create a store.
+          </h1>
+        </div>
+       )
+    }
     return !loading ? (
         <>
             {!alreadySubmitted ? (

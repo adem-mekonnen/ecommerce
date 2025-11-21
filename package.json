@@ -14,8 +14,10 @@
     "@imagekit/nodejs": "^7.1.1",
     "@neondatabase/serverless": "^1.0.2",
     "@prisma/adapter-neon": "^6.19.0",
-    "@prisma/client": "^6.19.0",
+    "@prisma/client": "^7.0.0",
+    "@prisma/config": "^7.0.0",
     "@reduxjs/toolkit": "^2.8.2",
+    "axios": "^1.13.2",
     "date-fns": "^4.1.0",
     "inngest": "^3.45.1",
     "lucide-react": "^0.525.0",
@@ -34,7 +36,7 @@
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.6",
     "@types/ws": "^8.18.1",
-    "prisma": "^6.19.0",
+    "prisma": "^7.0.0",
     "tailwindcss": "^4",
     "typescript": "^5.9.3"
   }
