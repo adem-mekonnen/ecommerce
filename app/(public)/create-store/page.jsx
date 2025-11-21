@@ -41,17 +41,24 @@ export default function CreateStore() {
         setLoading(false)
     }
 
-    const onSubmitHandler = async (e) => {
+  const onSubmitHandler = async (e) => {
         e.preventDefault()
-        // Logic to submit the store details
+        
         if (!user) {
-            toast("You must be logged in to create a store.")
+            toast.error("You must be logged in.")
             router.push("/login")
-            return  
+            return
         }
+
+        const toastId = toast.loading("Creating your store...");
+
         try {
-            const token = await getToken({ template: "default" })
+            // FIX: Remove { template: "default" }
+            // Just call getToken() to get the standard session token
+            const token = await getToken(); 
+            
             const formData = new FormData()
+            // ... rest of your formData appends ...
             formData.append("name", storeInfo.name)
             formData.append("username", storeInfo.username)
             formData.append("description", storeInfo.description)
@@ -60,20 +67,25 @@ export default function CreateStore() {
             formData.append("address", storeInfo.address)
             formData.append("image", storeInfo.image)
 
-        const {data} = await axios.post("/api/store/create", formData, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                           }
+            const { data } = await axios.post("/api/store/create", formData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+            })
 
+            toast.success(data.message || "Store created!", { id: toastId })
+            setAlreadySubmitted(true)
+            setMessage("Store created successfully! Redirecting...")
+            setStatus("approved")
             
-        })
-        toast.success(data.message || "Store created successfully!")
+            setTimeout(() => {
+                router.push("/seller/dashboard")
+            }, 2000)
+
         } catch (error) {
-            toast.error(error.response?.data?.error || "Something went wrong. Please try again.")
-            
+            console.error("Submission Error:", error); // Check Console for this log
+            toast.error(error.response?.data?.error || "Something went wrong.", { id: toastId })
         }
-
-
     }
 
     useEffect(() => {

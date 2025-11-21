@@ -1,13 +1,19 @@
 // prisma.config.ts
 import { defineConfig } from "@prisma/config";
+import "dotenv/config"; // Loads .env variables
+
+const dbUrl = process.env.DATABASE_URL;
+
+if (!dbUrl) {
+  throw new Error("❌ DATABASE_URL is missing from .env file");
+}
 
 export default defineConfig({
-  // Point to your schema
   schema: "prisma/schema.prisma",
   
-  // Configure the database connection
   datasource: {
-    url: process.env.DATABASE_URL,
-    shadowDatabaseUrl: process.env.DIRECT_URL, // use shadowDatabaseUrl to match the expected type
+    // ❌ REMOVED 'provider' (It belongs in schema.prisma)
+    // ❌ REMOVED 'directUrl' (Not needed for local DB & not supported in this config type)
+    url: dbUrl, 
   },
 });
