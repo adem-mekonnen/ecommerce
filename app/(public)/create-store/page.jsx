@@ -41,52 +41,45 @@ export default function CreateStore() {
         setLoading(false)
     }
 
-  const onSubmitHandler = async (e) => {
-        e.preventDefault()
-        
-        if (!user) {
-            toast.error("You must be logged in.")
-            router.push("/login")
-            return
-        }
-
-        const toastId = toast.loading("Creating your store...");
-
-        try {
-            // FIX: Remove { template: "default" }
-            // Just call getToken() to get the standard session token
-            const token = await getToken(); 
-            
-            const formData = new FormData()
-            // ... rest of your formData appends ...
-            formData.append("name", storeInfo.name)
-            formData.append("username", storeInfo.username)
-            formData.append("description", storeInfo.description)
-            formData.append("email", storeInfo.email)
-            formData.append("contact", storeInfo.contact)
-            formData.append("address", storeInfo.address)
-            formData.append("image", storeInfo.image)
-
-            const { data } = await axios.post("/api/store/create", formData, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                }
-            })
-
-            toast.success(data.message || "Store created!", { id: toastId })
-            setAlreadySubmitted(true)
-            setMessage("Store created successfully! Redirecting...")
-            setStatus("approved")
-            
-            setTimeout(() => {
-                router.push("/seller/dashboard")
-            }, 2000)
-
-        } catch (error) {
-            console.error("Submission Error:", error); // Check Console for this log
-            toast.error(error.response?.data?.error || "Something went wrong.", { id: toastId })
-        }
+const onSubmitHandler = async (e) => {
+    e.preventDefault();
+    
+    if (!user) {
+        toast.error("You must be logged in.");
+        router.push("/login");
+        return;
     }
+
+    const toastId = toast.loading("Creating your store...");
+
+    try {
+        const token = await getToken();
+        const formData = new FormData();
+        formData.append("name", storeInfo.name);
+        formData.append("username", storeInfo.username);
+        formData.append("description", storeInfo.description);
+        formData.append("email", storeInfo.email);
+        formData.append("contact", storeInfo.contact);
+        formData.append("address", storeInfo.address);
+        formData.append("image", storeInfo.image);
+
+        const { data } = await axios.post("/api/store/create", formData, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        toast.success(data.message || "Store created!", { id: toastId });
+        setAlreadySubmitted(true);
+        setMessage("Store created successfully! Redirecting...");
+        setStatus("approved");
+
+        setTimeout(() => router.push("/seller/dashboard"), 5000);
+
+    } catch (error) {
+        console.error("Submission Error:", error);
+        toast.error(error.response?.data?.error || "Something went wrong.", { id: toastId });
+    }
+}
+
 
     useEffect(() => {
         fetchSellerStatus()

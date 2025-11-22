@@ -1,18 +1,17 @@
+version: '3.9'
+
 services:
   app:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: next_app
-    # Fix: Ensure we generate the client after install so it knows the new schema
     command: sh -c "npm install --legacy-peer-deps && npx prisma generate && npm run dev"
     ports:
       - '3000:3000'
     environment:
       NODE_ENV: development
-      # FIX: Force Docker to use 'postgres' service name, ignoring 'localhost' from .env
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
-      # If you are using Prisma 5/6 stable, you might not need DIRECT_URL, but it's safe to set it same as DB URL here
       DIRECT_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
     volumes:
       - ./:/usr/src/app
@@ -28,7 +27,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - '5434:5432'
+      - '5434:5432'   # Expose container port 5432 to host 5434
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
