@@ -1,23 +1,17 @@
-import "dotenv/config";
+// lib/prisma.ts
+import { PrismaClient } from '@prisma/client'
 
-import { Pool } from 'pg'
-import { PrismaPg } from '@prisma/adapter-pg'
-import { PrismaClient } from '@/generated/prisma/client'
-//import { PrismaClient } from '@prisma/client'
-//const connectionString = `${process.env.DATABASE_URL}`
-const connectionString = process.env.DATABASE_URL
+// This ensures we use a single PrismaClient instance during development
+// Prevents "Cannot reinstantiate PrismaClient" errors with Next.js hot reload
+declare global {
+  // eslint-disable-next-line no-var
+  var prisma: PrismaClient | undefined
+}
 
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient }
+export const prisma =
+  global.prisma ||
+  new PrismaClient({
+    log: ['query', 'info', 'warn', 'error'], // optional, useful for debugging
+  })
 
-// 1. Create the Pool
-const pool = new Pool({ connectionString })
-
-// 2. Create the Adapter
-const adapter = new PrismaPg(pool)
-
-// 3. Initialize Prisma with the Adapter
-export const prisma = globalForPrisma.prisma || new PrismaClient({ adapter })
-
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
-
-export default prisma
+if (process.env.NODE_ENV !== 'production') global.prisma = prisma

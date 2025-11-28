@@ -1,15 +1,40 @@
 import imagekit from "@/configs/ImageKit";
-import { getAuth } from "@clerk/nextjs/server";
+import { currentUser } from "@clerk/nextjs/server"; // CHANGED: Use currentUser to get details
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma"; // FIX 1: Import Prisma
+import { prisma } from "@/lib/prisma";
 
 const USERNAME_REGEX = /^[a-zA-Z0-9-_]{3,30}$/;
+
 export async function POST(request) {
   try {
-    const { userId } = getAuth(request);
-    if (!userId) {
+    // 1. Get full user details from Clerk
+    const user = await currentUser();
+    
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    
+    const userId = user.id;
+
+    // ------------------------------------------------------------------
+    // FIX: Ensure User exists in Postgres before creating Store
+    // ------------------------------------------------------------------
+    let dbUser = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!dbUser) {
+      console.log("User not found in DB, syncing from Clerk...");
+      dbUser = await prisma.user.create({
+        data: {
+          id: userId,
+          name: `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.username || "User",
+          email: user.emailAddresses[0]?.emailAddress || "",
+          image: user.imageUrl || "",
+        },
+      });
+    }
+    // ------------------------------------------------------------------
 
     const formData = await request.formData();
 
@@ -66,6 +91,7 @@ export async function POST(request) {
       }
     }
 
+    // Now safe to create store because dbUser is guaranteed to exist
     const store = await prisma.store.create({
       data: {
         userId,
@@ -88,12 +114,12 @@ export async function POST(request) {
 
 export async function GET(request) {
   try {
-    const { userId } = getAuth(request);
-    if (!userId) {
+    const user = await currentUser();
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const store = await prisma.store.findFirst({ where: { userId } });
+    const store = await prisma.store.findFirst({ where: { userId: user.id } });
     return NextResponse.json({ hasStore: !!store, store }, { status: 200 });
   } catch (err) {
     console.error("/api/store GET error:", err);
